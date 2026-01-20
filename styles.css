@@ -127,7 +127,7 @@ button {
 }
 
 .header-container {
-    max-width: 1500px;
+    max-width: 1350px;
     margin: 0 auto;
     padding: 0 var(--spacing-md);
     height: 100%;
