@@ -1,0 +1,965 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SCD Journey — Clear information, support, and guidance for people living with Sickle Cell Disease.">
+    <meta name="theme-color" content="#7A1E2B">
+    <title>SCD Journey — You can live well with Sickle Cell Disease</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+    <!-- Leaflet (Map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Minimal map styles directly in the HTML (you can move to styles.css if you want) -->
+    <style>
+        /* ===== Blood Centers (Map) ===== */
+        .map-ui {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .map-controls {
+            background: var(--white, #fff);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .map-row {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .map-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .map-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            outline: none;
+        }
+
+        .map-frame {
+            background: var(--white, #fff);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .hemo-map {
+            width: 100%;
+            height: 460px;
+        }
+
+        .hemo-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .hemo-item {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            padding: 12px;
+            cursor: pointer;
+            transition: transform .08s ease, box-shadow .12s ease;
+        }
+
+        .hemo-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .hemo-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .hemo-meta {
+            font-size: 13px;
+            opacity: .85;
+            line-height: 1.35;
+        }
+
+        .hemo-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hemo-link {
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 980px) {
+            .map-ui {
+                grid-template-columns: 1fr;
+            }
+
+            .hemo-map {
+                height: 380px;
+            }
+        }
+    </style>
+    <style>
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ========== STICKY HEADER ========== -->
+    <header id="top" class="header">
+        <div class="header-container">
+            <a href="#hero" class="logo">
+                <img src="src/logo.svg" alt="SCD Journey" height="40">
+            </a>
+
+            <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="nav" role="navigation">
+                <ul class="nav-list">
+                    <li><a href="#autoridade">What it is</a></li>
+                    <li><a href="#viver-bem">Living well</a></li>
+                    <li><a href="#cuidados">Care</a></li>
+                    <li><a href="#assistencia">Your Virtual Assistant</a></li>
+                    <li><a href="#alerta">Warning signs</a></li>
+                    <li><a href="#faq">Questions</a></li>
+                    <li><a href="#hemocentros">Blood centers</a></li>
+                </ul>
+
+                <a href="https://wa.me/5511952136954?text=Oi%20GuiaFalciforme%2C%20quero%20tirar%20d%C3%BAvidas%20sobre%20Falciforme"
+                   data-wa-text="Hi SCD Journey, I have questions about Sickle Cell Disease"
+                   class="btn btn-primary btn-header" target="_blank" rel="noopener noreferrer"
+                   aria-label="Chat on WhatsApp">
+                    Chat on WhatsApp
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- ========== HERO ========== -->
+        <section id="hero" class="hero">
+            <div class="container hero-wrapper">
+                <div class="hero-content">
+                    <h1>The 100% free assistant to help you live well!</h1>
+                    <p class="hero-subtitle">Clear information, support, and guidance for people living with
+                        Sickle Cell Disease — and for anyone who wants to understand it better.</p>
+                    <p class="hero-text">Living well isn’t “luck.” It’s care, follow-up, and simple day-to-day choices.
+                        <strong>You’re not alone.</strong>
+                    </p>
+
+                    <div class="hero-cta">
+                        <a href="https://wa.me/5511952136954?text=Oi%20GuiaFalciforme%2C%20quero%20tirar%20d%C3%BAvidas%20sobre%20Falciforme"
+                           data-wa-text="Hi SCD Journey, I have questions about Sickle Cell Disease"
+                           class="btn btn-cta btn-large" target="_blank" rel="noopener noreferrer"
+                           aria-label="Chat on WhatsApp">
+                            Chat on WhatsApp
+                        </a>
+                        <a href="#o-que-e" class="btn btn-secondary">Understand Sickle Cell Disease</a>
+                    </div>
+
+                    <p class="microcopy">General educational guidance. If you have serious symptoms, seek medical care.</p>
+                </div>
+
+                <div class="hero-image">
+                    <img src="src/picture.png" alt="" loading="eager">
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ASSISTANCE ========== -->
+        <section id="assistencia" class="section">
+            <div class="container">
+                <h2>Your 100% free digital assistant for everyday life</h2>
+                <p class="section-intro">SCD Journey is more than information — it’s ongoing support. Our WhatsApp assistant helps you
+                    navigate daily life with Sickle Cell Disease, offering practical guidance and a welcoming presence whenever you need it — 100% free.</p>
+
+                <div class="cards-grid cards-3">
+                    <article class="card fade-in">
+                        <div class="card-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                                <path d="M20 4C11.163 4 4 11.163 4 20s7.163 16 16 16 16-7.163 16-16S28.837 4 20 4z" stroke="currentColor" stroke-width="2"></path>
+                                <path d="M12 20l6-6v4h10v4H18v4l-6-6z" fill="currentColor"></path>
+                            </svg>
+                        </div>
+                        <h3>Finding hospitals</h3>
+                        <p>Find reference centers and nearby hospitals prepared to support SCD care.</p>
+                    </article>
+
+                    <article class="card fade-in">
+                        <div class="card-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                                <rect x="6" y="8" width="28" height="24" rx="3" stroke="currentColor" stroke-width="2"></rect>
+                                <path d="M6 16h28M14 8v-4M26 8v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                        <h3>Crisis diary & reminders</h3>
+                        <p>Track episodes, spot patterns, and get reminders for medication and hydration.</p>
+                    </article>
+
+                    <article class="card fade-in">
+                        <div class="card-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                                <path d="M20 36c8.837 0 16-7.163 16-16S28.837 4 20 4 4 11.163 4 20s7.163 16 16 16z" stroke="currentColor" stroke-width="2"></path>
+                                <path d="M20 12v10l6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                        <h3>Emergency S.O.S.</h3>
+                        <p>A guided urgency protocol based on pain and immediate orientation in critical moments.</p>
+                    </article>
+                </div>
+
+                <div class="cards-grid cards-4" style="margin-top: var(--spacing-lg);">
+                    <a href="https://wa.me/5511952136954?text=Quero%20conte%C3%BAdos%20educacionais"
+                       data-wa-text="I want educational content"
+                       class="card card-small card-link fade-in" target="_blank" rel="noopener noreferrer"
+                       aria-label="I want educational content on WhatsApp">
+                        <div class="card-icon-small">📚</div>
+                        <h4>Educational content</h4>
+                    </a>
+                    <a href="https://wa.me/5511952136954?text=Quero%20suporte%20emocional"
+                       data-wa-text="I want emotional support"
+                       class="card card-small card-link fade-in" target="_blank" rel="noopener noreferrer"
+                       aria-label="I want emotional support on WhatsApp">
+                        <div class="card-icon-small">💚</div>
+                        <h4>Emotional support</h4>
+                    </a>
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20os%20direitos%20do%20paciente"
+                       data-wa-text="I want to learn about patient rights"
+                       class="card card-small card-link fade-in" target="_blank" rel="noopener noreferrer"
+                       aria-label="I want to learn about patient rights on WhatsApp">
+                        <div class="card-icon-small">⚖️</div>
+                        <h4>Patient rights</h4>
+                    </a>
+                    <a href="https://wa.me/5511952136954?text=Quero%20ajuda%20m%C3%A9dica%20pr%C3%B3xima%20de%20mim"
+                       data-wa-text="I want medical help near me"
+                       class="card card-small card-link fade-in" target="_blank" rel="noopener noreferrer"
+                       aria-label="I want medical help near me on WhatsApp">
+                        <div class="card-icon-small">🩺</div>
+                        <h4>Specialist network</h4>
+                    </a>
+                </div>
+
+                <div class="manifesto" style="margin-top: var(--spacing-xl);">
+                    <p>Free 24/7 support. Reliable information. Real help.</p>
+                </div>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20conhecer%20a%20assist%C3%AAncia"
+                       data-wa-text="I want to learn about the assistance"
+                       class="btn btn-cta btn-large" target="_blank" rel="noopener noreferrer"
+                       aria-label="Chat with the assistant">
+                        Chat with the assistant — 100% free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== AUTHORITY ========== -->
+        <section id="autoridade" class="section section-white">
+            <div class="container">
+                <h2>Sickle Cell Disease: common, genetic, and manageable</h2>
+                <p class="section-intro">Sickle Cell Disease is a genetic blood condition and among the most frequent rare diseases.
+                    With early diagnosis, follow-up, and prevention, it’s possible to reduce crises, avoid complications, and live more safely.</p>
+
+                <div class="cards-grid cards-3">
+                    <article class="card fade-in">
+                        <div class="card-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2"></circle>
+                                <path d="M14 20h12M20 14v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                        <h3>Genetic, not contagious</h3>
+                        <p>You don’t “catch” it. It’s inherited.</p>
+                    </article>
+
+                    <article class="card fade-in">
+                        <div class="card-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                                <path d="M20 8v24M12 16l8-8 8 8M12 24l8 8 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <h3>Follow-up changes everything</h3>
+                        <p>A care routine can reduce crises.</p>
+                    </article>
+
+                    <article class="card fade-in">
+                        <div class="card-icon">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                                <path d="M20 36c8.837 0 16-7.163 16-16S28.837 4 20 4 4 11.163 4 20s7.163 16 16 16z" stroke="currentColor" stroke-width="2"></path>
+                                <path d="M14 20l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </div>
+                        <h3>You can live well</h3>
+                        <p>With a care plan and support.</p>
+                    </article>
+                </div>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20mais%20sobre%20Falciforme"
+                       data-wa-text="I want to learn more about Sickle Cell Disease"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn more about Sickle Cell Disease — 100% free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== WHAT IT IS ========== -->
+        <section id="o-que-e" class="section">
+            <div class="container">
+                <h2>What is Sickle Cell Disease?</h2>
+                <p class="section-text">In Sickle Cell Disease, some blood cells can change shape and move through the bloodstream with more difficulty.
+                    This can reduce oxygen transport and, at times, cause blockages in smaller vessels — leading to pain and other symptoms.</p>
+
+                <div class="highlight-box">
+                    <h3>Trait vs Disease</h3>
+                    <ul>
+                        <li><strong>Sickle cell trait:</strong> usually doesn’t cause symptoms like the disease, but it can be passed on.</li>
+                        <li><strong>Sickle Cell Disease:</strong> happens when a person inherits the genetic change from both parents.</li>
+                    </ul>
+                </div>
+
+                <p class="section-closing">Understanding how your body works is the first step to living better with the condition.</p>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20mais%20sobre%20as%20Manifesta%C3%A7%C3%B5es"
+                       data-wa-text="I want to learn more about symptoms"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn more about symptoms — 100% free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== MANIFESTATIONS ========== -->
+        <section id="manifestacoes" class="section section-white">
+            <div class="container">
+                <h2>How Sickle Cell Disease can show up</h2>
+                <p class="section-intro">Everyone experiences SCD differently. Some people have few crises; others need more support.
+                    What matters most is follow-up and recognizing warning signs.</p>
+
+                <ul class="bullet-list">
+                    <li>Pain episodes (crises)</li>
+                    <li>Fatigue/anemia</li>
+                    <li>More frequent infections</li>
+                    <li>Jaundice (yellowing of eyes/skin) in some cases</li>
+                    <li>Painful swelling in hands/feet in childhood (in some cases)</li>
+                </ul>
+
+                <p class="microcopy-inline">You don’t have to “push through.” Severe pain deserves attention.</p>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20mais%20sobre%20Viver%20Bem"
+                       data-wa-text="I want to learn more about living well"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn more about living well
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== LIVING WELL ========== -->
+        <section id="viver-bem" class="section">
+            <div class="container">
+                <h2>You can live well with Sickle Cell Disease</h2>
+                <p class="section-intro">Living well doesn’t mean “never having challenges.” It means having strategies, support, and a plan.
+                    With continuous care, many people study, work, travel, exercise with guidance, and build a full life.</p>
+
+                <div class="manifesto">
+                    <p>You are more than the condition.</p>
+                    <p>Information reduces fear.</p>
+                    <p>Consistent care builds freedom.</p>
+                </div>
+
+                <h3 class="cards-title">What truly helps</h3>
+                <div class="cards-grid cards-4">
+                    <article class="card card-small fade-in">
+                        <div class="card-icon-small">💧</div>
+                        <h4>Hydration routine</h4>
+                    </article>
+                    <article class="card card-small fade-in">
+                        <div class="card-icon-small">🌙</div>
+                        <h4>Sleep and recovery</h4>
+                    </article>
+                    <article class="card card-small fade-in">
+                        <div class="card-icon-small">📋</div>
+                        <h4>Follow-up and tests</h4>
+                    </article>
+                    <article class="card card-small fade-in">
+                        <div class="card-icon-small">🤝</div>
+                        <h4>Support network and emotional health</h4>
+                    </article>
+                </div>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20mais%20sobre%20Cuidados"
+                       data-wa-text="I want to learn more about care"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn about your care plan — 100% free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== CARE ========== -->
+        <section id="cuidados" class="section section-white">
+            <div class="container">
+                <h2>Simple care steps that help a lot</h2>
+                <p class="section-intro">Small habits can have a big impact. This isn’t about “stopping life” — it’s about living more safely.</p>
+
+                <ul class="checklist">
+                    <li><span class="check-icon" aria-hidden="true">✓</span>Hydrate throughout the day</li>
+                    <li><span class="check-icon" aria-hidden="true">✓</span>Avoid extreme cold/heat when possible</li>
+                    <li><span class="check-icon" aria-hidden="true">✓</span>Keep vaccines and infection prevention up to date</li>
+                    <li><span class="check-icon" aria-hidden="true">✓</span>Balanced diet and healthy routine</li>
+                    <li><span class="check-icon" aria-hidden="true">✓</span>Physical activity with guidance (moderate, respecting your body)</li>
+                    <li><span class="check-icon" aria-hidden="true">✓</span>Regular follow-up and a crisis action plan</li>
+                </ul>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20um%20plano%20de%20cuidados"
+                       data-wa-text="I want a care plan"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer"
+                       aria-label="I want a care plan on WhatsApp">
+                        I want a care plan on WhatsApp — 100% free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== VACCINES (SICKLE CELL DISEASE) ========== -->
+        <section id="vacinas-df" class="section section-white">
+            <div class="container">
+                <h2>Important vaccines for people with Sickle Cell Disease</h2>
+                <p class="section-intro">
+                    People with Sickle Cell Disease may have a higher risk of infections, especially from certain bacteria.
+                    In addition to the routine schedule, some vaccines and boosters may be recommended and available through the public health system
+                    (often via special immunization centers).
+                </p>
+
+                <div class="cards-grid cards-3">
+                    <article class="card fade-in">
+                        <h3>Often available in the public system</h3>
+                        <ul class="bullet-list">
+                            <li><strong>Influenza (flu) — inactivated:</strong> usually yearly (campaign-based).</li>
+                            <li><strong>COVID-19:</strong> per current campaigns and priority groups.</li>
+                            <li><strong>Pneumococcal:</strong> PCV10 (routine in childhood) and, when indicated for SCD, may include
+                                <strong>PCV13</strong> and <strong>PPSV23</strong> (often via special centers).</li>
+                            <li><strong>Meningococcal ACWY (MenACWY):</strong> may be indicated for SCD, with schedule/boosters as advised.</li>
+                            <li><strong>Hib (Haemophilus influenzae type b):</strong> routine in childhood (pentavalent). Extra doses may be recommended in special situations.</li>
+                            <li><strong>Varicella:</strong> available in routine childhood schedule; catch-up depends on immunity and guidance.</li>
+                            <li><strong>Hepatitis A and Hepatitis B:</strong> available in the public system (routine and/or catch-up depending on age and situation).</li>
+                            <li><strong>Yellow fever (when risk/area recommendation applies):</strong> offered publicly; in SCD, the decision can depend on clinical assessment.</li>
+                        </ul>
+
+                        <p class="microcopy-inline">
+                            <strong>Practical tip:</strong> some vaccines may require referral to a specialized immunization center.
+                            Bring ID, your vaccine card, and (if possible) a medical report confirming SCD.
+                        </p>
+                    </article>
+
+                    <article class="card fade-in">
+                        <h3>Usually not covered (more common in private clinics)</h3>
+                        <ul class="bullet-list">
+                            <li><strong>Meningococcal B (MenB)</strong></li>
+                            <li><strong>Pneumococcal 15- or 20-valent (PCV15 / PCV20)</strong></li>
+                            <li><strong>Herpes zoster (recombinant/inactivated)</strong></li>
+                            <li><strong>HPV 9-valent</strong> (public programs often use the quadrivalent version when eligible)</li>
+                            <li><strong>Quadrivalent influenza (4V)</strong> (when not offered in the current campaign)</li>
+                            <li><strong>RSV</strong> (when indicated, availability is often outside public routine)</li>
+                        </ul>
+
+                        <div class="highlight-box" style="margin-top: var(--spacing-md);">
+                            <h3 style="margin-top: 0;">Important</h3>
+                            <ul>
+                                <li>Recommendations vary by <strong>age</strong>, dose history, and clinical condition.</li>
+                                <li>Public programs can change rules and availability over time.</li>
+                                <li>Confirm with your local service before you go.</li>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20ajuda%20para%20organizar%20minhas%20vacinas%20(Doen%C3%A7a%20Falciforme)"
+                       data-wa-text="I want help organizing my vaccines (Sickle Cell Disease)"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        I want help organizing my vaccines
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== WARNING SIGNS ========== -->
+        <section id="alerta" class="section section-alert">
+            <div class="container">
+                <h2>When to seek medical care immediately</h2>
+                <p class="section-intro">Some signs require prompt evaluation. Your safety comes first.
+                    These are key warning signs to seek care right away:</p>
+
+                <ul class="alert-list">
+                    <li>Fever</li>
+                    <li>Severe pain outside your usual pattern or that doesn’t improve</li>
+                    <li>Shortness of breath, chest pain, fainting</li>
+                    <li>Sudden weakness, neurological changes, confusion</li>
+                    <li>Any symptom that scares you</li>
+                </ul>
+
+                <p class="support-phrase">You’re not overreacting. Seeking help early is care.</p>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20mais%20sobre%20Sinais%20de%20Alerta"
+                       data-wa-text="I want to learn more about warning signs"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn more about warning signs
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== TREATMENT ========== -->
+        <section id="tratamento" class="section section-white">
+            <div class="container">
+                <h2>Treatment is individual — and works best with consistency</h2>
+                <p class="section-text">Care may include specialist follow-up, prevention, symptom control and, in some cases,
+                    medications and other resources determined by the healthcare team. The best path is having a clear plan and revisiting it over time.</p>
+                <p class="section-subtext">Each person has a story and a plan. What matters is not walking alone.</p>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20saber%20mais%20sobre%20Tratamento"
+                       data-wa-text="I want to learn more about treatment"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn more about treatment
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== REAL LIFE ========== -->
+        <section id="vida-real" class="section">
+            <div class="container">
+                <h2>Real life with Sickle Cell Disease</h2>
+
+                <div class="testimonial-grid">
+                    <blockquote class="testimonial-card fade-in">
+                        <p>"I learned to recognize my signs and act early."</p>
+                    </blockquote>
+                    <blockquote class="testimonial-card fade-in">
+                        <p>"With routine and support, my life goes on."</p>
+                    </blockquote>
+                    <blockquote class="testimonial-card fade-in">
+                        <p>"I take care of myself — and I keep living my plans."</p>
+                    </blockquote>
+                </div>
+
+                <div class="cta-contextual">
+                    <a href="https://wa.me/5511952136954?text=Quero%20compartilhar%20minha%20hist%C3%B3ria"
+                       data-wa-text="I want to share my story"
+                       class="btn btn-cta" target="_blank" rel="noopener noreferrer">
+                        Learn more about real life
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== FAQ ========== -->
+        <section id="faq" class="section section-white">
+            <div class="container">
+                <h2>Frequently asked questions</h2>
+
+                <div class="accordion">
+                    <div class="accordion-item fade-in">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>Is Sickle Cell Disease contagious?</span>
+                            <span class="accordion-icon" aria-hidden="true"></span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>No. Sickle Cell Disease is a genetic condition, inherited from parents. It’s not spread by contact, air, water, or any other route.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item fade-in">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>What can trigger a crisis?</span>
+                            <span class="accordion-icon" aria-hidden="true"></span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Some common factors include dehydration, extreme temperatures (cold or heat), infections, intense physical or emotional stress,
+                                and excessive exercise without preparation. Triggers vary — knowing yours helps prevent crises.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item fade-in">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>Can I exercise?</span>
+                            <span class="accordion-icon" aria-hidden="true"></span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Yes. Physical activity can be part of your routine as long as it fits your condition and you have professional guidance.
+                                Moderate exercise, good hydration, and respecting your limits are key. Talk with your healthcare team about a personalized plan.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item fade-in">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>How do I manage pain day to day?</span>
+                            <span class="accordion-icon" aria-hidden="true"></span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Having a pain management plan with your healthcare team is essential. It may include recognizing early signs, knowing when to use prescribed medication,
+                                applying heat locally, staying hydrated, and recognizing when to seek care. The chatbot provides educational guidance and support.
+                                For clinical decisions and emergencies, contact your care team or seek medical attention.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item fade-in">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>How do I explain the condition to family/work?</span>
+                            <span class="accordion-icon" aria-expanded="false"></span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>Being clear and objective helps. You can explain it’s a genetic blood condition that requires some care,
+                                and that with follow-up you can live normally. Clarifying what you need (breaks, hydration, flexibility on some days) makes it easier for others to understand.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item fade-in">
+                        <button class="accordion-header" aria-expanded="false">
+                            <span>What can the chatbot help me understand?</span>
+                            <span class="accordion-icon" aria-hidden="true"></span>
+                        </button>
+                        <div class="accordion-content">
+                            <p>The chatbot provides educational information and support. It can help answer general questions about the condition, daily care,
+                                when to seek help, and how to organize information. For clinical decisions and emergencies, contact your care team or seek medical care.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== PARTNERS ========== -->
+        <section id="parceiros" class="section section-white">
+            <div class="container">
+                <h2>Our Partners</h2>
+                <p class="section-intro">Companies and organizations supporting the Sickle Cell Disease cause.</p>
+                <div class="parceiros-grid" id="parceiros-logos">
+                    <p class="parceiros-empty">Coming soon — our partners will be listed here.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== BLOOD CENTERS (MAP) - INSERTED BEFORE FINAL CTA ========== -->
+        <section id="hemocentros" class="section section-white">
+            <div class="container">
+                <h2>Blood centers near you</h2>
+                <p class="section-intro">
+                    Use your location to find blood donation/blood bank sites near you.
+                    If you don’t allow location access, the map will open in a general view.
+                </p>
+
+                <div class="map-ui">
+                    <div class="map-controls">
+                        <div class="map-row">
+                            <label for="hemo-radius" class="map-label">Radius (km)</label>
+                            <input id="hemo-radius" class="map-input" type="number" min="1" max="50" value="10">
+                        </div>
+
+                        <button id="hemo-btn" class="btn btn-cta" type="button">
+                            Use my location
+                        </button>
+
+                        <p id="hemo-status" class="microcopy" style="margin-top: 10px;">Click “Use my location” to find nearby blood centers.</p>
+
+                        <div id="hemo-list" class="hemo-list" aria-live="polite"></div>
+                    </div>
+
+                    <div class="map-frame">
+                        <div id="hemo-map" class="hemo-map" role="region" aria-label="Blood centers map" tabindex="0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== FINAL CTA ========== -->
+        <section id="whatsapp" class="section section-cta-final">
+            <div class="container">
+                <h2>Chat with SCD Journey on WhatsApp</h2>
+                <p class="section-intro">Ask questions, get guidance, and organize your next steps with more clarity and peace of mind.</p>
+
+                <a href="https://wa.me/5511952136954?text=Oi%20GuiaFalciforme%2C%20quero%20tirar%20d%C3%BAvidas%20sobre%20Falciforme"
+                   data-wa-text="Hi SCD Journey, I have questions about Sickle Cell Disease"
+                   class="btn btn-cta btn-large" target="_blank" rel="noopener noreferrer"
+                   aria-label="Chat on WhatsApp now">
+                    Chat on WhatsApp now
+                </a>
+
+                <p class="microcopy">Educational AI support. Not a substitute for medical consultation.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer id="footer" class="footer">
+        <div class="container">
+            <div class="footer-transparency">
+                <h3>Transparency</h3>
+                <p>Educational content based on medical references and public health materials. Always talk to your healthcare team for individual guidance.</p>
+            </div>
+
+            <div class="footer-references">
+                <h4>Recommended references</h4>
+                <ul>
+                    <li>Brazilian Ministry of Health (materials on Sickle Cell Disease)</li>
+                    <li>World Health Organization (Sickle cell disease)</li>
+                    <li>MSD Manual (clinical information)</li>
+                    <li>NIH / MedlinePlus (patient information)</li>
+                </ul>
+            </div>
+
+            <div class="footer-copy">
+                <p>© 2025 SCD Journey. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== FLOATING WHATSAPP BUTTON ========== -->
+    <a href="https://wa.me/5511952136954?text=Oi%20GuiaFalciforme%2C%20quero%20tirar%20d%C3%BAvidas%20sobre%20Falciforme"
+       data-wa-text="Hi SCD Journey, I have questions about Sickle Cell Disease"
+       class="fab-whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Open WhatsApp">
+        <svg viewBox="0 0 32 32" width="32" height="32" fill="currentColor" aria-hidden="true">
+            <path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.128 6.744 3.046 9.378L1.054 32l6.826-2.186A15.91 15.91 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.338 22.594c-.39 1.1-1.932 2.012-3.172 2.278-.848.18-1.956.324-5.684-1.222-4.772-1.978-7.838-6.836-8.076-7.152-.228-.316-1.912-2.546-1.912-4.856 0-2.31 1.212-3.448 1.642-3.918.39-.428 1.026-.604 1.634-.604.198 0 .374.01.534.018.43.018.646.044.93.718.354.84 1.218 2.966 1.324 3.182.108.216.18.468.036.75-.134.292-.2.472-.4.728-.198.256-.418.572-.596.768-.198.228-.404.474-.174.93.23.446.102.18 1.792 2.738 1.174 1.778 2.132 2.328 2.436 2.582.304.256.482.214.66.128.188-.094.796-.464 1.008-.932s.424-.862.59-.862c.166 0 1.39.328 1.628.388.238.06.396.09.454.138.058.048.058.276-.082.684z"></path>
+        </svg>
+    </a>
+
+    <!-- Leaflet JS (Map) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="script.js"></script>
+
+    <!-- Map script directly in the HTML (you can move to script.js if you want) -->
+    <script>
+        // ===== Nearby Blood Centers (Leaflet + Overpass/OSM) =====
+        (function initBloodCentersFeature() {
+            function $(id) { return document.getElementById(id); }
+
+            const mapEl = $('hemo-map');
+            if (!mapEl) return;
+
+            const statusEl = $('hemo-status');
+            const listEl = $('hemo-list');
+            const radiusEl = $('hemo-radius');
+            const btnEl = $('hemo-btn');
+
+            const overpassEndpoint = 'https://overpass-api.de/api/interpreter';
+
+            function setStatus(msg, isError = false) {
+                statusEl.textContent = msg || '';
+                statusEl.style.color = isError ? '#b00020' : '';
+            }
+
+            function escapeHtml(s = '') {
+                return String(s).replace(/[&<>"']/g, m => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+                }[m]));
+            }
+
+            function haversineKm(aLat, aLon, bLat, bLon) {
+                const R = 6371;
+                const dLat = (bLat - aLat) * Math.PI / 180;
+                const dLon = (bLon - aLon) * Math.PI / 180;
+                const sa =
+                    Math.sin(dLat / 2) ** 2 +
+                    Math.cos(aLat * Math.PI / 180) *
+                    Math.cos(bLat * Math.PI / 180) *
+                    Math.sin(dLon / 2) ** 2;
+                return 2 * R * Math.asin(Math.sqrt(sa));
+            }
+
+            function fmtAddr(tags) {
+                const parts = [
+                    tags['addr:street'],
+                    tags['addr:housenumber'],
+                    tags['addr:suburb'],
+                    tags['addr:city'],
+                    tags['addr:state'],
+                    tags['addr:postcode'],
+                ].filter(Boolean);
+                return parts.join(', ');
+            }
+
+            async function fetchBloodCenters(lat, lon, radiusMeters) {
+                const q = `
+[out:json][timeout:25];
+(
+  nwr(around:${radiusMeters}, ${lat}, ${lon})["healthcare"="blood_donation"];
+  nwr(around:${radiusMeters}, ${lat}, ${lon})["healthcare"="blood_bank"];
+  nwr(around:${radiusMeters}, ${lat}, ${lon})["amenity"="blood_bank"];
+);
+out center tags;
+                `.trim();
+
+                const res = await fetch(overpassEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                    body: 'data=' + encodeURIComponent(q),
+                });
+
+                if (!res.ok) {
+                    const t = await res.text().catch(() => '');
+                    throw new Error(`Overpass HTTP ${res.status} ${t ? '- ' + t.slice(0, 120) : ''}`);
+                }
+                return res.json();
+            }
+
+            // --- base map ---
+            const map = L.map('hemo-map', { scrollWheelZoom: true }).setView([-14.2350, -51.9253], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const markersLayer = L.layerGroup().addTo(map);
+            let userMarker = null;
+
+            function clearResults() {
+                markersLayer.clearLayers();
+                listEl.innerHTML = '';
+            }
+
+            function addListItem(item, onClick) {
+                const tags = item.tags || {};
+                const name = tags.name || tags.operator || 'Blood Center / Blood Donation';
+                const addr = fmtAddr(tags);
+                const phone = tags.phone || tags['contact:phone'];
+                const site = tags.website || tags['contact:website'];
+
+                const gmaps = `https://www.google.com/maps?q=${item.lat},${item.lon}`;
+
+                const div = document.createElement('div');
+                div.className = 'hemo-item';
+                div.innerHTML = `
+          <div class="hemo-title">${escapeHtml(name)}</div>
+          ${addr ? `<div class="hemo-meta">${escapeHtml(addr)}</div>` : ''}
+          ${phone ? `<div class="hemo-meta">📞 ${escapeHtml(phone)}</div>` : ''}
+          ${site ? `<div class="hemo-meta">🌐 ${escapeHtml(site)}</div>` : ''}
+          <div class="hemo-meta">📍 ${escapeHtml(item.km.toFixed(1))} km</div>
+          <div class="hemo-actions">
+            <a class="hemo-link" href="${gmaps}" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+          </div>
+        `;
+                div.addEventListener('click', onClick);
+                listEl.appendChild(div);
+            }
+
+            async function runGeoSearch() {
+                clearResults();
+
+                if (!navigator.geolocation) {
+                    setStatus('Your browser does not support geolocation.', true);
+                    return;
+                }
+
+                const radiusKm = Math.max(1, Math.min(50, Number(radiusEl.value || 10)));
+                const radiusMeters = Math.round(radiusKm * 1000);
+
+                setStatus('Requesting location permission...');
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    try {
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+
+                        setStatus(`Searching for blood centers within ${radiusKm} km...`);
+
+                        map.setView([lat, lon], 13);
+
+                        if (userMarker) userMarker.remove();
+                        userMarker = L.marker([lat, lon]).addTo(map).bindPopup('You are here').openPopup();
+
+                        const data = await fetchBloodCenters(lat, lon, radiusMeters);
+
+                        const items = (data.elements || [])
+                            .map(el => {
+                                const pLat = el.type === 'node' ? el.lat : (el.center && el.center.lat);
+                                const pLon = el.type === 'node' ? el.lon : (el.center && el.center.lon);
+                                if (pLat == null || pLon == null) return null;
+
+                                const tags = el.tags || {};
+                                const km = haversineKm(lat, lon, pLat, pLon);
+                                return { lat: pLat, lon: pLon, tags, km };
+                            })
+                            .filter(Boolean)
+                            .sort((a, b) => a.km - b.km);
+
+                        if (!items.length) {
+                            setStatus('No results found in this radius. Try increasing the radius.', true);
+                            return;
+                        }
+
+                        setStatus(`${items.length} result(s) found.`);
+
+                        items.forEach((it) => {
+                            const name = it.tags.name || it.tags.operator || 'Blood Center / Blood Donation';
+                            const addr = fmtAddr(it.tags);
+
+                            const popup = `
+              <div style="font-weight:700; margin-bottom:6px;">${escapeHtml(name)}</div>
+              ${addr ? `<div style="font-size:13px; opacity:.9;">${escapeHtml(addr)}</div>` : ''}
+              ${it.tags.opening_hours ? `<div style="font-size:13px; opacity:.9; margin-top:6px;">⏰ ${escapeHtml(it.tags.opening_hours)}</div>` : ''}
+              <div style="font-size:13px; opacity:.9; margin-top:6px;">📍 ${it.km.toFixed(1)} km</div>
+            `;
+
+                            const m = L.marker([it.lat, it.lon]).addTo(markersLayer).bindPopup(popup);
+
+                            addListItem(it, () => {
+                                map.setView([it.lat, it.lon], 16);
+                                m.openPopup();
+                            });
+                        });
+
+                    } catch (e) {
+                        setStatus('Error fetching data. Please try again in a moment.', true);
+                    }
+                }, (err) => {
+                    setStatus('Unable to get your location. (' + err.message + ')', true);
+                }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+            }
+
+            btnEl.addEventListener('click', runGeoSearch);
+
+            setStatus('Click “Use my location” to find nearby blood centers.');
+        })();
+    </script>
+</body>
+</html>
